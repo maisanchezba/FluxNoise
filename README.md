@@ -1,5 +1,5 @@
 # FluxNoise
-This repository has code and simulations used for modeling the dynamics and behavior of a TLSs spins bath coupled to a superconducting qubit loop
+This repository has code and simulations used for modeling the dynamics and behavior of a TLSs spins bath coupled to a superconducting qubit loop. The effect of both qubit magnetic field and external magnetic field are taken into account for solving the TLSs system.
 
 ## 1. Installing the superconducting version of FastHenry
 
