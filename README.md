@@ -109,7 +109,7 @@ The repository contains two main Jupyter notebooks:
 
 ### `FluxNoise`
 
-The `FluxNoise` notebook performs the **numerical calculations** required for the spin-bath analysis, using the current-density distributions obtained from FastHenry.
+The `FluxNoise` notebook performs the **numerical calculations** required for the spin-bath analysis, using the current-density distributions obtained from FastHenry. Further information is in the notebook and the main solvers are in the `diffusion2d_complete.py` file
 
 ### `analytical`
 
