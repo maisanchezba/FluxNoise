@@ -1,11 +1,7 @@
 """
-Same 2D vector diffusion equation
-
-    d m / dt = D * Laplacian_2D ( m - chi * B )
-
-but now solved on a RECTANGULAR LOOP geometry: a square/rectangular
+Bloch-Torrey equation solved on a RECTANGULAR LOOP geometry: a square/rectangular
 frame of outer size Lx x Ly with a rectangular hole cut out of the
-middle, leaving a strip ("wire") of width W all around.
+middle, leaving a strip  or wire of width W all around.
 
 Approach: build a boolean mask `inside` marking grid points that belong
 to the conducting/magnetic material (the frame). The Laplacian is only
@@ -13,12 +9,11 @@ evaluated using neighbors that are also `inside`; neighbors outside the
 material (in the hole or in the exterior) are excluded, which enforces
 a natural zero-flux (Neumann) condition on ALL material boundaries —
 both the outer edge of the loop and the inner edge of the hole.
-m is simply left at 0 (or undefined/NaN for plotting) outside the mask.
+m is simply left at 0 (or nan for plotting) outside the mask.
 
-This is done with a "masked Laplacian": at each material point, average
+This is done with a "masked Laplacian": at each point, average
 only over the material neighbors that exist, and use the count of valid
-neighbors in place of a fixed factor of 4 (standard trick for irregular
-domains / Neumann BC via ghost-point reflection).
+neighbors in place of a fixed factor of 4 (ghost-point reflection).
 """
 
 import numpy as np  # number of steps over which dt ramps up
@@ -56,11 +51,10 @@ def build_rectangular_loop_mask(X, Y, Lx, Ly, W, x0=None, y0=None):
 def masked_laplacian2d(f, mask, dx, dy):
     """
     Discrete Laplacian of f (Nx, Ny) restricted to `mask` (True = material).
-    Uses a variable-stencil finite-volume-style formula so that boundaries
+    Uses a finite-volume-style formula so that boundaries
     of the mask (outer edge AND inner hole edge) behave like zero-flux
-    (Neumann) boundaries automatically: neighbors outside the mask are
-    simply excluded from the average (equivalent to a mirror/ghost point
-    equal to the center value, i.e. zero gradient across the boundary).
+    boundaries automatically: neighbors outside the mask are
+    simply excluded from the average (zero gradient across the boundary).
 
     Returns an array the same shape as f; values outside the mask are 0.
     """
@@ -145,8 +139,7 @@ def step_ftcs_masked(m, B, mask, D, dx, dy, dt, T=20e-3):
     return m_new
 
 
-# def max_stable_dt(D, dx, dy, safety=0.9):
-#     return safety * 0.5 / (D * (1.0 / dx**2 + 1.0 / dy**2))
+
 
 
 def max_stable_dt(D, dx, dy, Bmax=0, gamma=1.76e11,
@@ -206,16 +199,14 @@ def solve_diffusion_2d_loop(
     Parameters
     ----------
     t_grid : array, monotonically increasing, t_grid[0] = 0.
-             Output (saved) times. Internal integration dt is
+             Output times. Internal integration dt is
              independent of the spacing of t_grid.
     dt_max : float, optional
              Maximum stable internal dt. If None, computed automatically
              from max_stable_dt(D, dx, dy, T1=T1, T2=T2, safety=safety).
     min_substeps : int
              Minimum number of substeps to take per output interval,
-             even if a single stable dt would already cover it (useful
-             if you want a floor on temporal resolution regardless of
-             CFL).
+             even if a single stable dt would already cover it.
     """
     if dt_max is None:
         dt_max = max_stable_dt(D, dx, dy, T1=T1, T2=T2, safety=safety)
